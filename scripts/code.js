@@ -1,4 +1,4 @@
-// CREDITS
+// Credits
 // https://github.com/NexusNull/ALBot/blob/master/CODE/default.js
 
 var reviving = false;

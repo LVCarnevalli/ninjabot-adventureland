@@ -34,7 +34,7 @@ const waitForResponse = (page, url) => {
     log("Read configurations");
     const config = JSON.parse(await readFile("../config.json"));
     log("Start browser");
-    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] });
+    const browser = await puppeteer.launch({ args: ['--disable-dev-shm-usage'] });
     try {
         for (let index = 0; index < config.characters.length; index++) {
             const runner = config.characters[index];
@@ -102,8 +102,9 @@ const waitForResponse = (page, url) => {
                 await readFile(`../scripts/${runner.code}`)
             );
 
-            log("Character is active!", runner);
+            log("Character is active", runner);
         }
+        log("Load all characters with successful!");
     } catch (e) {
         console.log(e);
         await browser.close();

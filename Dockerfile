@@ -1,44 +1,52 @@
-FROM ubuntu:16.04
+FROM node:8-slim
 
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+# See https://crbug.com/795759
+RUN apt-get update && apt-get install -yq libgconf-2-4
 
-# Configure environment
-RUN apt-get update && \
-    apt-get install -y wget nano git && \
-    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-  	echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
-  	apt-get update && \
-  	apt-get install -y google-chrome-stable && \
-    rm -rf /var/lib/apt/lists/*
+# Install latest chrome dev package and fonts to support major charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
+# Note: this installs the necessary libs to make the bundled version of Chromium that Puppeteer
+# installs, work.
+RUN apt-get update && apt-get install -y wget --no-install-recommends \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+    && apt-get update \
+    && apt-get install -y google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst ttf-freefont \
+      --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get purge --auto-remove -y curl \
+    && rm -rf /src/*.deb
 
-ENV NVM_DIR /usr/local/.nvm
-ENV NODE_VERSION 8.14.0
+# It's a good idea to use dumb-init to help prevent zombie chrome processes.
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
 
-# Install nvm
-RUN git clone https://github.com/creationix/nvm.git $NVM_DIR && \
-    cd $NVM_DIR && \
-    git checkout `git describe --abbrev=0 --tags`
+# Uncomment to skip the chromium download when installing puppeteer. If you do,
+# you'll need to launch puppeteer with:
+#     browser.launch({executablePath: 'google-chrome-unstable'})
+# ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
-# Install default version of Node.js
-RUN source $NVM_DIR/nvm.sh && \
-    nvm install $NODE_VERSION && \
-    nvm alias default $NODE_VERSION && \
-    nvm use default
+# Install puppeteer so it's available in the container.
+RUN npm i puppeteer
 
-# Add nvm.sh to .bashrc for startup...
-RUN echo "source ${NVM_DIR}/nvm.sh" > $HOME/.bashrc && \
-    source $HOME/.bashrc
+# Add user so we don't need --no-sandbox.
+RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
+    && mkdir -p /home/pptruser/Downloads \
+    && mkdir -p /home/pptruser/ninjabot \
+    && mkdir -p /home/pptruser/ninjabot/app \
+    && mkdir -p /home/pptruser/ninjabot/scripts \
+    && chown -R pptruser:pptruser /home/pptruser \
+    && chown -R pptruser:pptruser /home/pptruser/ninjabot \
+    && chown -R pptruser:pptruser /node_modules
 
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
-ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-
-# Configure dependencies
-ADD app/ /usr/src/app
-WORKDIR /usr/src/app
+# Configure app
+ADD app/ /home/pptruser/ninjabot/app
+WORKDIR /home/pptruser/ninjabot/app
 RUN npm install
+ADD scripts/ /home/pptruser/ninjabot/scripts
+ADD config.json /home/pptruser/ninjabot/
 
-# Add scripts and configs
-ADD scripts/ /usr/src/scripts
-ADD config.json /usr/src/
+# Run everything after as non-privileged user.
+USER pptruser
 
-CMD node index.js
+ENTRYPOINT ["dumb-init", "--"]
+CMD node /home/pptruser/ninjabot/app/index.js

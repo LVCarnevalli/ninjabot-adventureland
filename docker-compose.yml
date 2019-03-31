@@ -3,3 +3,4 @@ services:
   ninjabot:
     build: .
     tty: true
+    cap_add: [SYS_ADMIN]
