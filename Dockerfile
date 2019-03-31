@@ -4,7 +4,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # Configure environment
 RUN apt-get update && \
-    apt-get install -y wget nano && \
+    apt-get install -y wget nano git && \
     wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
   	echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
   	apt-get update && \
