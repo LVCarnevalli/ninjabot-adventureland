@@ -81,9 +81,9 @@ const waitForResponse = (page, url) => {
                 server_port = server.port;
                 init_socket();
             }, config.servers[runner.server]);
-            await page.waitFor(5000);
 
             log("Create error handler", runner);
+            await page.waitFor(() => !!socket_welcomed);
             await page.evaluate(() => {
                 socket.on("game_error", function(data) {
                     window.nb_logError(data);
