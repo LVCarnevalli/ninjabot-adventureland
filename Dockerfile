@@ -34,6 +34,7 @@ ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # Configure NinjaBot
 WORKDIR /usr/src
+ADD . /usr/src/
 RUN npm install
 
 CMD node index.js
