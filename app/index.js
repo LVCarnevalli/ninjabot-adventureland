@@ -106,8 +106,7 @@ const waitForResponse = (page, url) => {
         }
     } catch (e) {
         console.log(e);
-        process.exit();
-    } finally {
         await browser.close();
+        process.exit();
     }
 })();
