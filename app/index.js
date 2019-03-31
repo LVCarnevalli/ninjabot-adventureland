@@ -73,7 +73,7 @@ const waitForResponse = (page, url) => {
             throw new Error(`Character ${runner.name} is online now`);
         }
 
-        log(`Connect server ${character.server}`, runner);
+        log(`Connect server ${runner.server}`, runner);
         await page.evaluate(server => {
             server_addr = server.addr;
             server_port = server.port;
