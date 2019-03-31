@@ -12,7 +12,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ENV NVM_DIR /usr/local/.nvm
-ENV NODE_VERSION 7.9.0
+ENV NODE_VERSION 8.14.0
 
 # Install nvm
 RUN git clone https://github.com/creationix/nvm.git $NVM_DIR && \
