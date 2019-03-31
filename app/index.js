@@ -32,12 +32,22 @@ const waitForResponse = (page, url) => {
 
 (async () => {
     log("Read configurations");
-    const config = JSON.parse(await readFile("config.json"));
+    const config = JSON.parse(await readFile("../config.json"));
     log("Start browser");
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     config.characters.forEach(async runner => {
         log("Create new page for character", runner);
         const page = await browser.newPage();
+
+        log("Expose functions", runner);
+        await page.exposeFunction("nb_logError", text =>
+            log(colors.red(text), runner)
+        );
+        await page.exposeFunction("nb_logInfo", text =>
+            log(colors.blue(text), runner)
+        );
+
+        log("Open game", runner);
         await page.goto("https://adventure.land");
         log("Wait game loaded", runner);
         await page.waitFor(() => game_loaded);
@@ -72,12 +82,9 @@ const waitForResponse = (page, url) => {
         await page.waitFor(5000);
 
         log("Create error handler", runner);
-        await page.exposeFunction("nb_errorHandler", text =>
-            log(colors.red(text), runner)
-        );
         await page.evaluate(() => {
             socket.on("game_error", function(data) {
-                window.nb_errorHandler(data);
+                window.nb_logError(data);
             });
         });
 
@@ -90,7 +97,7 @@ const waitForResponse = (page, url) => {
         log("Execute code", runner);
         await page.evaluate(
             code => start_runner(0, code),
-            await readFile(runner.code)
+            await readFile(`../scripts/${runner.code}`)
         );
 
         log("Character is active!", runner);
