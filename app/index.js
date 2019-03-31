@@ -48,7 +48,7 @@ const waitForResponse = (page, url) => {
         );
 
         log("Open game", runner);
-        await page.goto("https://adventure.land", waitUntil: 'networkidle2');
+        await page.goto("https://adventure.land", { waitUntil: 'networkidle2' });
         log("Wait game loaded", runner);
         await page.waitFor(() => game_loaded);
 
