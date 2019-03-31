@@ -40,6 +40,9 @@ const waitForResponse = (page, url) => {
             const runner = config.characters[index];
             log("Create new page for character", runner);
             const page = await browser.newPage();
+            page.on("error", err => {
+                log(colors.red(err), runner);
+            });
 
             log("Expose functions", runner);
             await page.exposeFunction("nb_logError", text =>
