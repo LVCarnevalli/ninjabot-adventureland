@@ -2,7 +2,5 @@ version: '3'
 services:
   ninjabot:
     build: .
-    environment:
-      - NINJA_BOT_DIR=/usr/src/NinjaBot
     volumes:
-      - ./:/usr/src/NinjaBot
+      - ./:/usr/src
