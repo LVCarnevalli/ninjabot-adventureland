@@ -3,12 +3,13 @@ FROM ubuntu:16.04
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # Configure environment
-RUN \
-  wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-  echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
-  apt-get update && \
-  apt-get install -y google-chrome-stable nano vi && \
-  rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y wget nano vi && \
+    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+  	echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
+  	apt-get update && \
+  	apt-get install -y google-chrome-stable && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV NVM_DIR /usr/local/.nvm
 ENV NODE_VERSION 7.9.0
