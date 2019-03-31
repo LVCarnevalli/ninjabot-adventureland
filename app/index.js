@@ -36,7 +36,8 @@ const waitForResponse = (page, url) => {
     log("Start browser");
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     try {
-        await config.characters.forEach(async runner => {
+        for (let index = 0; index < config.characters.length; index++) {
+            const runner = config.characters[index];
             log("Create new page for character", runner);
             const page = await browser.newPage();
 
@@ -102,7 +103,7 @@ const waitForResponse = (page, url) => {
             );
 
             log("Character is active!", runner);
-        });
+        }
     } catch (e) {
         console.log(e);
         process.exit();
