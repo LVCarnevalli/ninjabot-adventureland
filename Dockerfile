@@ -32,11 +32,12 @@ RUN echo "source ${NVM_DIR}/nvm.sh" > $HOME/.bashrc && \
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
-# Configure NinjaBot
-WORKDIR /usr/src
+# Configure dependencies
 ADD app/ /usr/src/app
+WORKDIR /usr/src/app
 RUN npm install
 
+# Add scripts and configs
 ADD scripts/ /usr/src/scripts
 ADD config.json /usr/src/
 
