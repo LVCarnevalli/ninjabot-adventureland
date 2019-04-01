@@ -2,9 +2,9 @@ const colors = require("colors");
 
 const log = (message, runner) => {
     if (runner) {
-        console.log(`[${new Date().toUTCString()}][${colors.green(runner.name)}] ${message}`);
+        console.log(`[NB][${new Date().toISOString()}][${colors.green(runner.name)}] ${message}`);
     } else {
-        console.log(`[${new Date().toUTCString()}] ${message}`);
+        console.log(`[NB][${new Date().toISOString()}] ${message}`);
     }
 };
 
