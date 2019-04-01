@@ -1,0 +1,24 @@
+version: '2.1'
+services:
+  browserless:
+    image: browserless/chrome:latest
+    ports:
+     - "3000:3000"
+    environment:
+     - MAX_CONCURRENT_SESSIONS=10
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  ninjabot:
+    build: .
+    tty: true
+    cap_add: [SYS_ADMIN]
+    #shm_size: 1g
+    depends_on:
+      browserless:
+        condition: service_healthy
+    links:
+      - browserless
