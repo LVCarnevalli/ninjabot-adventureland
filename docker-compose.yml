@@ -1,7 +1,7 @@
-version: '3'
+version: '2.1'
 services:
-  ninjabot:
-    build: .
-    tty: true
-    cap_add: [SYS_ADMIN]
-    #shm_size: 1g
+    ninjabot:
+        build: .
+        tty: true
+        cap_add: [SYS_ADMIN]
+        #shm_size: 1g
