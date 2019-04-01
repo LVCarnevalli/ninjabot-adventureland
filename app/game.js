@@ -55,7 +55,10 @@ exports.connectCharacter = async (page, character) => {
 
 exports.runCode = async (page, runner) => {
   await page.evaluate(
-    code => start_runner(0, code),
+    code => {
+      start_runner(0, code);
+      actual_code = true;
+    },
     await commons.readFile(`../scripts/${runner.code}`)
   );
 };
