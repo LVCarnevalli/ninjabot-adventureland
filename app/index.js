@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer");
 const colors = require("colors");
 const fs = require("fs");
+const osu = require('node-os-utils');
 
 const log = (message, runner) => {
     if (runner) {
@@ -30,11 +31,34 @@ const waitForResponse = (page, url) => {
     });
 };
 
+const monitorPerformance = () => {
+  const cpu = osu.cpu;
+  const drive = osu.drive;
+  const proc = osu.proc;
+
+  const monitorCpuMemory = () => {
+      cpu.usage().then(cpuInfo => 
+        drive.info().then(driveInfo => 
+          console.log(`CPU Usage: ${cpuInfo}% / Memory Usage: ${driveInfo.usedPercentage}%`
+        )));
+  };
+  monitorCpuMemory();
+  setInterval(monitorCpuMemory, 1000*10);
+};
+
 (async () => {
+    monitorPerformance();
+    
     log("Read configurations");
     const config = JSON.parse(await readFile("../config.json"));
     log("Start browser");
-    const browser = await puppeteer.launch({ args: ['--disable-dev-shm-usage'] });
+    const browser = await puppeteer.launch({ args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--disable-gpu'
+    ] });
     try {
         for (let index = 0; index < config.characters.length; index++) {
             const runner = config.characters[index];

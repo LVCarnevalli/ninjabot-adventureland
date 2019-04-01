@@ -4,4 +4,4 @@ services:
     build: .
     tty: true
     cap_add: [SYS_ADMIN]
-    shm_size: 1g
+    #shm_size: 1g
