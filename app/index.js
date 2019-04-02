@@ -31,6 +31,7 @@ const instanceBrowser = async () => {
 };
 
 const instancePage = async (index, browser, config) => {
+    const url = "https://adventure.land";
     const runner = config.characters[index];
 
     logs.log("Create new page for character", runner);
@@ -44,18 +45,14 @@ const instancePage = async (index, browser, config) => {
     await pageFunctions.on(page);
 
     logs.log("Open game", runner);
-    await page.goto("https://adventure.land?no_html=true");
+    await page.goto(`${url}?no_html=true`);
     logs.log("Wait game loaded", runner);
     await page.waitFor(() => game_loaded);
 
     logs.log("Login in account", runner);
     await game.login(page, runner, config);
-    logs.log("Get character", runner);
-    const character = await game.getCharacter(page, runner);
-    logs.log(`Connect server ${runner.server}`, runner);
-    await game.changeServer(page, runner, config);
     logs.log("Request login account", runner);
-    await game.connectCharacter(page, character);
+    await page.goto(`${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${runner.server.split(" ")[1]}/?no_html=true`);
     logs.log("Configure monitors", runner);
     await monitor.characterInfo(page);
     logs.log("Execute code", runner);

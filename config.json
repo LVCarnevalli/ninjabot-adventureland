@@ -1,40 +1,46 @@
 {
-  "auth": {
-    "email": "",
-    "password": ""
-  },
-  "characters": [
+    "auth":
     {
-      "name": "Char1",
-      "code": "code.js",
-      "server": "Americas I"
+        "email": "",
+        "password": ""
+    },
+    "characters": [
+    {
+        "name": "Char1",
+        "code": "code.js",
+        "server": "US I"
     },
     {
-      "name": "Char2",
-      "code": "code.js",
-      "server": "Americas I"
+        "name": "Char2",
+        "code": "code.js",
+        "server": "US I"
+    }],
+    "servers":
+    {
+        "EU I":
+        {
+            "addr": "eus1.adventure.land",
+            "port": "2053"
+        },
+        "EU II":
+        {
+            "addr": "eus1.adventure.land",
+            "port": "2087"
+        },
+        "US I":
+        {
+            "addr": "uss1.adventure.land",
+            "port": "2053"
+        },
+        "US II":
+        {
+            "addr": "uss1.adventure.land",
+            "port": "2087"
+        },
+        "US III":
+        {
+            "addr": "uss1.adventure.land",
+            "port": "2096"
+        }
     }
-  ],
-  "servers": {
-    "Europas I": {
-      "addr": "eus1.adventure.land",
-      "port": "2053"
-    },
-    "Europas II": {
-      "addr": "eus1.adventure.land",
-      "port": "2087"
-    },
-    "Americas I": {
-      "addr": "uss1.adventure.land",
-      "port": "2053"
-    },
-    "Americas II": {
-      "addr": "uss1.adventure.land",
-      "port": "2087"
-    },
-    "Americas III": {
-      "addr": "uss1.adventure.land",
-      "port": "2096"
-    }
-  }
 }
