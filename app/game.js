@@ -7,7 +7,7 @@ exports.login = async (page, runner, config) => {
     }, config.auth);
     const responseLogin = await commons.puppeteer.waitForResponse(page, "signup_or_login");
     logs.log(JSON.parse(await responseLogin.text())[0].message, runner);
-    await page.waitFor(() => user_auth);
+    await page.waitFor(() => Cookies.get("auth"));
 };
 
 exports.getCharacter = async (page, runner) => {
