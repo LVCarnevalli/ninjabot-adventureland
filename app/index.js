@@ -44,7 +44,7 @@ const instancePage = async (index, browser, config) => {
     await pageFunctions.on(page);
 
     logs.log("Open game", runner);
-    await page.goto("https://adventure.land");
+    await page.goto("https://adventure.land?no_html=true");
     logs.log("Wait game loaded", runner);
     await page.waitFor(() => game_loaded);
 
