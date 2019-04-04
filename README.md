@@ -1,4 +1,4 @@
-# NinjaBot Adventure Land
+# Ninja Bot Adventure Land
 - Configure auth and chararacters in config.json
 - Execute follow commands:
 ```
