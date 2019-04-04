@@ -18,13 +18,14 @@ const instanceBrowser = async () => {
         });
     } else {
         return await puppeteer.launch({
-            dumpio: true,
+            dumpio: false,
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
                 "--disable-accelerated-2d-canvas",
-                "--disable-gpu"
+                "--disable-gpu",
+                "--remote-debugging-port=9222"
             ]
         });
     }

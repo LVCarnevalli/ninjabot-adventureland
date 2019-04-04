@@ -5,3 +5,5 @@ services:
         tty: true
         cap_add: [SYS_ADMIN]
         #shm_size: 1g
+        ports:
+          - "9222:9222"
