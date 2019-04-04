@@ -25,7 +25,8 @@ const instanceBrowser = async () => {
                 "--disable-dev-shm-usage",
                 "--disable-accelerated-2d-canvas",
                 "--disable-gpu",
-                "--remote-debugging-port=9222"
+                "--remote-debugging-port=9222",
+                "--remote-debugging-address=0.0.0.0"
             ]
         });
     }
