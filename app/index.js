@@ -57,6 +57,8 @@ const instancePage = async (index, browser, config) => {
     await page.goto(`${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${runner.server.split(" ")[1]}/?no_html=true`);
     logs.log("Configure monitors", runner);
     await monitor.characterInfo(page);
+    await monitor.isDead(page);
+    await monitor.runCode(page);
     logs.log("Execute code", runner);
     await game.runCode(page, runner);
     logs.log("Character is active", runner);
