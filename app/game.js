@@ -58,7 +58,7 @@ exports.runCode = async (page, runner) => {
         page.evaluate(
             code => {
                 if (!actual_code || !code_run) {
-                    logs.log("Warning: Retry execute code", runner);
+                    window.nb_logInfo("Warning: Retry execute code", runner);
                     start_runner(0, code);
                     actual_code = true;
                 }
