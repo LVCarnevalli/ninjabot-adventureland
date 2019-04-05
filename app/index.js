@@ -10,96 +10,124 @@ const game = require("./game");
 const url = "https://adventure.land";
 
 const instanceBrowser = async () => {
-    if (!!process.env.BROWSERLESS) {
-        return await puppeteer.connect({
-            browserWSEndpoint: "ws://localhost:3000?--no-sandbox=true" +
-                "&--disable-setuid-sandbox=true" +
-                "&--disable-dev-shm-usage=true" +
-                "&--disable-accelerated-2d-canvas=true" +
-                "&--disable-gpu=true"
-        });
-    } else {
-        return await puppeteer.launch({
-            dumpio: false,
-            args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-accelerated-2d-canvas",
-                "--disable-gpu",
-                "--remote-debugging-port=9222",
-                "--remote-debugging-address=0.0.0.0"
-            ]
-        });
-    }
+  if (!!process.env.BROWSERLESS) {
+    return await puppeteer.connect({
+      browserWSEndpoint:
+        "ws://localhost:3000?--no-sandbox=true" +
+        "&--disable-setuid-sandbox=true" +
+        "&--disable-dev-shm-usage=true" +
+        "&--disable-accelerated-2d-canvas=true" +
+        "&--disable-gpu=true"
+    });
+  } else {
+    return await puppeteer.launch({
+      dumpio: false,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--disable-gpu",
+        "--remote-debugging-port=9222",
+        "--remote-debugging-address=0.0.0.0"
+      ]
+    });
+  }
 };
 
 const instancePage = async (index, browser, config) => {
-    const runner = config.characters[index];
+  const runner = config.characters[index];
 
-    logs.log("Create new page for character", runner);
-    const page = await browser.newPage();
+  logs.log("Create new page for character", runner);
+  const page = await browser.newPage();
 
-    logs.log("Init request interceptor", runner);
-    await requestInterception.on(page);
-    logs.log("Configure page events", runner);
-    await pageEvents.on(page);
-    logs.log("Configure page functions", runner);
-    await pageFunctions.on(page);
+  logs.log("Init request interceptor", runner);
+  await requestInterception.on(page);
+  logs.log("Configure page events", runner);
+  await pageEvents.on(page);
+  logs.log("Configure page functions", runner);
+  await pageFunctions.on(page);
 
-    logs.log("Open game", runner);
-    await page.goto(`${url}?no_html=true`);
-    logs.log("Wait game loaded", runner);
-    await page.waitFor(() => game_loaded);
+  logs.log("Open game", runner);
+  await page.goto(`${url}?no_html=true`);
+  logs.log("Wait game loaded", runner);
+  await page.waitFor(() => window["game_loaded"]);
 
-    logs.log("Login in account", runner);
-    await game.login(page, runner, config);
+  logs.log("Login in account", runner);
+  await game.login(page, runner, config);
 
-    logs.log("Init character", runner);
-    await init(page, runner);
-    setInterval(async () => {
-        const notRun = await page.evaluate(() => !window["actual_code"] || !window["code_run"]);
-        if (notRun) {
-            logs.log("Warning: Retry init character", runner);
-            try {
-                await init(page, runner);
-            } catch (e) {
-                logs.error("Occurred error in retry init character", runner);
-            }
-        }
-    }, 1000 * 60);
+  logs.log("Init character", runner);
+  await init(page, runner);
 };
 
 const init = async (page, runner) => {
+  try {
     logs.log("Request login account", runner);
-    await page.goto(`${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${runner.server.split(" ")[1]}/?no_html=true`, {
+    await page.goto(
+      `${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${
+        runner.server.split(" ")[1]
+      }/?no_html=true`,
+      {
         timeout: 1000 * 120
+      }
+    );
+
+    logs.log("Create error handler", runner);
+    await page.waitFor(() => window["socket_welcomed"]);
+    await page.evaluate(() => {
+      socket.on("game_error", function(data) {
+        window.nb_logError(`${data}`);
+      });
     });
+
+    logs.log("Waiting connected", runner);
     await page.waitForXPath("//div[contains(text(), 'Connected')]", {
-        timeout: 1000 * 120
+      timeout: 1000 * 120
     });
+
     logs.log("Configure monitors", runner);
     await monitor.characterInfo(page);
     await monitor.runCode(page);
     logs.log("Execute code", runner);
     await game.runCode(page, runner);
     logs.log("Character is active", runner);
+  } catch (e) {
+    logs.error("Occurred error in init character", runner);
+    retryInit(page, runner);
+  }
+};
+
+const retryInit = async (page, runner) => {
+  setTimeout(async () => {
+    const notRun = await page.evaluate(
+      () => !window["actual_code"] || !window["code_run"]
+    );
+    if (notRun) {
+      logs.log("Warning: Retry init character", runner);
+      try {
+        await init(page, runner);
+      } catch (e) {
+        logs.error("Occurred error in retry init character", runner);
+        retryInit(page, runner);
+      }
+    }
+  }, 1000 * 60);
 };
 
 (async () => {
-    logs.log("Read configurations");
-    const config = JSON.parse(await commons.readFile("../config.json"));
-    logs.log("Start browser");
-    const browser = await instanceBrowser();
+  logs.log("Read configurations");
+  const config = JSON.parse(await commons.readFile("../config.json"));
+  logs.log("Start browser");
+  const browser = await instanceBrowser();
 
-    try {
-        for (let index = 0; index < config.characters.length; index++) {
-            await instancePage(index, browser, config);
-        }
-        logs.log("Finish process all characters!");
-    } catch (e) {
-        logs.error(e);
-        await browser.close();
-        process.exit();
+  try {
+    for (let index = 0; index < config.characters.length; index++) {
+      await instancePage(index, browser, config);
     }
+    logs.log("Finish process all characters!");
+  } catch (e) {
+    logs.error(e);
+    await browser.close();
+    process.exit();
+  }
 })();

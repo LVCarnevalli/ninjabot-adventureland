@@ -1,15 +1,20 @@
 const colors = require("colors");
 
-const log = (message, runner) => {
-    if (runner) {
-        console.log(`[NB][${new Date().toISOString()}][${colors.green(runner.name)}] ${message}`);
-    } else {
-        console.log(`[NB][${new Date().toISOString()}] ${message}`);
-    }
+const log = (type, message, runner) => {
+  if (runner) {
+    console.log(
+      `[NB][${new Date().toISOString()}][${type}][${colors.green(
+        runner.name
+      )}] ${message}`
+    );
+  } else {
+    console.log(`[NB][${new Date().toISOString()}][${type}] ${message}`);
+  }
 };
 
 module.exports = {
-    log: log,
-    info: (message, runner) => log(colors.yellow(message), runner),
-    error: (message, runner) => log(colors.red(message), runner)
+  log: (message, runner) => log("LOG", message, runner),
+  info: (message, runner) => log("INFO", colors.green(message), runner),
+  error: (message, runner) => log("ERROR", colors.red(message), runner),
+  monitor: (message, runner) => log("MONITOR", colors.yellow(message), runner)
 };
