@@ -45,7 +45,7 @@ exports.connectCharacter = async (page, character) => {
 };
 
 exports.runCode = async (page, runner) => {
-    await page.waitFor(() => !!character);
+    await page.waitFor(() => window["character"]);
     await page.evaluate(
         code => {
             start_runner(0, code);
