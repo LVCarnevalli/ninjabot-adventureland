@@ -91,27 +91,36 @@ const init = async (page, runner) => {
     logs.log("Execute code", runner);
     await game.runCode(page, runner);
     logs.log("Character is active", runner);
+    verifyRetryInit();
   } catch (e) {
     logs.error("Occurred error in init character", runner);
     retryInit(page, runner);
   }
 };
 
-const retryInit = async (page, runner) => {
-  setTimeout(async () => {
+let retryInit;
+const verifyRetryInit = async (page, runner) => {
+  retryInit = setInterval(async () => {
     const notRun = await page.evaluate(
       () => !window["actual_code"] || !window["code_run"]
     );
     if (notRun) {
-      logs.log("Warning: Retry init character", runner);
-      try {
-        await init(page, runner);
-      } catch (e) {
-        logs.error("Occurred error in retry init character", runner);
-        retryInit(page, runner);
-      }
+      retryInit(page, runner);
     }
   }, 1000 * 60);
+};
+
+const retryInit = async (page, runner) => {
+  clearInterval(retryInit);
+  setTimeout(async () => {
+    logs.log("Warning: Retry init character", runner);
+    try {
+      await init(page, runner);
+    } catch (e) {
+      logs.error("Occurred error in retry init character", runner);
+      retryInit(page, runner);
+    }
+  }, 1000 * 30);
 };
 
 (async () => {
