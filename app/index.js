@@ -98,9 +98,9 @@ const init = async (page, runner) => {
   }
 };
 
-let retryInit;
+let intervalRetryInit;
 const verifyRetryInit = async (page, runner) => {
-  retryInit = setInterval(async () => {
+  intervalRetryInit = setInterval(async () => {
     const notRun = await page.evaluate(
       () => !window["actual_code"] || !window["code_run"]
     );
@@ -111,7 +111,7 @@ const verifyRetryInit = async (page, runner) => {
 };
 
 const retryInit = async (page, runner) => {
-  clearInterval(retryInit);
+  clearInterval(intervalRetryInit);
   setTimeout(async () => {
     logs.log("Warning: Retry init character", runner);
     try {
