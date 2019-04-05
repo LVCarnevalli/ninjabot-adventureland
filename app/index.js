@@ -91,7 +91,7 @@ const init = async (page, runner) => {
     logs.log("Execute code", runner);
     await game.runCode(page, runner);
     logs.log("Character is active", runner);
-    verifyRetryInit();
+    verifyRetryInit(page, runner);
   } catch (e) {
     logs.error("Occurred error in init character", runner);
     retryInit(page, runner);
