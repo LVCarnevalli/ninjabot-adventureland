@@ -35,48 +35,34 @@ const instanceBrowser = async () => {
   }
 };
 
-const instancePage = async (index, browser, config) => {
-  const runner = config.characters[index];
-
-  logs.log("Create new page for character", runner);
-  const page = await browser.newPage();
-
-  logs.log("Init request interceptor", runner);
-  await requestInterception.on(page);
-  logs.log("Configure page events", runner);
-  await pageEvents.on(page);
-  logs.log("Configure page functions", runner);
-  await pageFunctions.on(page);
-
-  logs.log("Open game", runner);
-  await page.goto(`${url}?no_html=true`);
-  logs.log("Wait game loaded", runner);
-  await page.waitFor(() => window["game_loaded"]);
-
-  logs.log("Login in account", runner);
-  await game.login(page, runner, config);
-
-  logs.log("Init character", runner);
-  await init(page, runner);
-};
-
-const init = async (page, runner, retry) => {
+const instancePage = async (browser, runner) => {
+    logs.log("Create new page for character", runner);
+    const page = await browser.newPage();
   try {
+    logs.log("Init request interceptor", runner);
+    await requestInterception.on(page);
+    logs.log("Configure page events", runner);
+    await pageEvents.on(page);
+    logs.log("Configure page functions", runner);
+    await pageFunctions.on(page);
+
+    logs.log("Open game", runner);
+    await page.goto(`${url}?no_html=true`);
+    logs.log("Wait game loaded", runner);
+    await page.waitFor(() => window["game_loaded"]);
+
+    logs.log("Login in account", runner);
+    await game.login(page, runner, config);
+
     logs.log("Request login account", runner);
-    if (!retry) {
-      await page.goto(
-        `${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${
-          runner.server.split(" ")[1]
-        }/?no_html=true`,
-        {
-          timeout: 1000 * 120
-        }
-      );
-    } else {
-      await page.reload({
+    await page.goto(
+      `${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${
+        runner.server.split(" ")[1]
+      }/?no_html=true`,
+      {
         timeout: 1000 * 120
-      });
-    }
+      }
+    );
 
     logs.log("Create error handler", runner);
     await page.waitFor(() => window["socket_welcomed"]);
@@ -97,34 +83,35 @@ const init = async (page, runner, retry) => {
     logs.log("Execute code", runner);
     await game.runCode(page, runner);
     logs.log("Character is active", runner);
-    verifyRetryInit(page, runner);
+    verifyRetryInstancePage(browser, runner, page;
   } catch (e) {
     logs.error("Occurred error in init character", runner);
-    retryInit(page, runner);
+    retryInstancePage(browser, runner, page);
   }
 };
 
-let intervalRetryInit = [];
-const verifyRetryInit = async (page, runner) => {
-  intervalRetryInit[runner.name] = setInterval(async () => {
+let intervalRetryInstancePage = [];
+const verifyRetryInstancePage = async (browser, runner, page) => {
+  intervalRetryInstancePage[runner.name] = setInterval(async () => {
     const notRun = await page.evaluate(
       () => !window["actual_code"] || !window["code_run"]
     );
     if (notRun) {
-      retryInit(page, runner);
+      retryInstancePage(browser, runner, page);
     }
   }, 1000 * 60);
 };
 
-const retryInit = async (page, runner) => {
-  clearInterval(intervalRetryInit[runner.name]);
+const retryInstancePage = async (browser, runner, page) => {
+  clearInterval(intervalRetryInstancePage[runner.name]);
+  await page.close();
   setTimeout(async () => {
     logs.log("Warning: Retry init character", runner);
     try {
-      await init(page, runner, true);
+      await instancePage(browser, runner);
     } catch (e) {
       logs.error("Occurred error in retry init character", runner);
-      retryInit(page, runner);
+      retryInstancePage(browser, runner, page);
     }
   }, 1000 * 30);
 };
@@ -137,7 +124,8 @@ const retryInit = async (page, runner) => {
 
   try {
     for (let index = 0; index < config.characters.length; index++) {
-      await instancePage(index, browser, config);
+        const runner = config.characters[index];
+      await instancePage(browser, runner);
     }
     logs.log("Finish process all characters!");
   } catch (e) {
