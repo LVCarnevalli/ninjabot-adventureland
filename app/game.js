@@ -55,15 +55,16 @@ exports.runCode = async (page, runner) => {
     );
 
     setInterval(async () => {
-        page.evaluate(
-            code => {
-                if (!actual_code || !code_run) {
-                    window.nb_logInfo(`[${character.name}] Warning: Retry execute code`);
+        await notRun = page.evaluate(() => !actual_code || !code_run);
+        if (notRun) {
+            logs.info("Warning: Retry execute code", runner);
+            page.evaluate(
+                code => {
                     start_runner(0, code);
                     actual_code = true;
-                }
-            },
-            await commons.readFile(`../scripts/${runner.code}`)
-        );
+                },
+                await commons.readFile(`../scripts/${runner.code}`)
+            );
+        }
     }, 1000 * 5);
 };
