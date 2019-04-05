@@ -63,7 +63,7 @@ const instancePage = async (index, browser, config) => {
 const init = async (page, runner, retry) => {
   try {
     logs.log("Request login account", runner);
-    if (retry) {
+    if (!retry) {
       await page.goto(
         `${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${
           runner.server.split(" ")[1]
