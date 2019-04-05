@@ -61,7 +61,11 @@ const instancePage = async (index, browser, config) => {
         const notRun = await page.evaluate(() => !actual_code || !code_run);
         if (notRun) {
             logs.log("Warning: Retry init character", runner);
-            init(page, runner);
+            try {
+                init(page, runner);
+            } catch {
+                logs.error("Occurred error in retry init character", runner);
+            }
         }
     }, 1000 * 60);
 };
