@@ -47,15 +47,15 @@ exports.connectCharacter = async (page, character) => {
 exports.runCode = async (page, runner) => {
     await page.waitFor(() => !!character);
     setInterval(async () => {
-        if (!actual_code || !code_run) {
-            logs.log("Warning: Retry execute code", runner);
-            page.evaluate(
-                code => {
+        logs.log("Warning: Retry execute code", runner);
+        page.evaluate(
+            code => {
+                if (!actual_code || !code_run) {
                     start_runner(0, code);
                     actual_code = true;
-                },
-                await commons.readFile(`../scripts/${runner.code}`)
-            );
-        }
+                }
+            },
+            await commons.readFile(`../scripts/${runner.code}`)
+        );
     }, 1000 * 5);
 };
