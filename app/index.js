@@ -56,14 +56,14 @@ const instancePage = async (index, browser, config) => {
     await game.login(page, runner, config);
 
     logs.log("Init character", runner);
-    init(page, runner);
+    await init(page, runner);
     setInterval(async () => {
         const notRun = await page.evaluate(() => !actual_code || !code_run);
         if (notRun) {
             logs.log("Warning: Retry init character", runner);
             init(page, runner);
         }
-    }, 1000 * 5);
+    }, 1000 * 60);
 };
 
 const init = async (page, runner) => {
