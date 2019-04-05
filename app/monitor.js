@@ -1,6 +1,6 @@
 exports.characterInfo = async page => {
-  setInterval(() => {
-    page.evaluate(() => {
+  page.evaluate(() => {
+    setInterval(() => {
       if (window["character"]) {
         var inventory = `${character.items.filter(item => !!item).length}/${
           character.items.length
@@ -19,13 +19,13 @@ exports.characterInfo = async page => {
           } / ${character.rip ? "Dead" : "Alive"}`
         );
       }
-    });
-  }, 1000 * 10);
+    }, 1000 * 10);
+  });
 };
 
 exports.runCode = async page => {
-  setInterval(() => {
-    page.evaluate(() => {
+  page.evaluate(() => {
+    setInterval(() => {
       if (window["character"]) {
         if (window["actual_code"] && window["code_run"]) {
           window.nb_logMonitor(`${character.name} running code...`);
@@ -33,6 +33,6 @@ exports.runCode = async page => {
           window.nb_logMonitor(`Warning: ${character.name} stopped code!`);
         }
       }
-    });
-  }, 1000 * 60);
+    }, 1000 * 60);
+  });
 };
