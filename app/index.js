@@ -45,43 +45,18 @@ const instancePage = async (browser, runner, auth) => {
     await pageEvents.on(page);
     logs.log("Configure page functions", runner);
     await pageFunctions.on(page);
-
     logs.log("Open game", runner);
-    await page.goto(`${url}?no_html=true`);
-    logs.log("Wait game loaded", runner);
-    await page.waitFor(() => window["game_loaded"]);
-
+    await game.open(page, runner, url);
     logs.log("Login in account", runner);
     await game.login(page, runner, auth);
-
-    logs.log("Request login account", runner);
-    await page.goto(
-      `${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${
-        runner.server.split(" ")[1]
-      }/?no_html=true`,
-      {
-        timeout: 1000 * 120
-      }
-    );
-
-    logs.log("Create error handler", runner);
-    await page.waitFor(() => window["socket_welcomed"]);
-    await page.evaluate(() => {
-      socket.on("game_error", function(data) {
-        window.nb_logError(`${data}`);
-      });
-    });
-
-    logs.log("Waiting connected", runner);
-    await page.waitForXPath("//div[contains(text(), 'Connected')]", {
-      timeout: 1000 * 120
-    });
-
+    logs.log("Connect character", runner);
+    await game.connectCharacter(page, runner, url);
     logs.log("Configure monitors", runner);
     await monitor.characterInfo(page);
     await monitor.runCode(page);
     logs.log("Execute code", runner);
     await game.runCode(page, runner);
+
     logs.log("Character is active", runner);
     verifyRetryInstancePage(browser, runner, auth, page);
   } catch (e) {
@@ -93,9 +68,7 @@ const instancePage = async (browser, runner, auth) => {
 let intervalRetryInstancePage = [];
 const verifyRetryInstancePage = async (browser, runner, auth, page) => {
   intervalRetryInstancePage[runner.name] = setInterval(async () => {
-    const notRun = await page.evaluate(
-      () => !window["actual_code"] || !window["code_run"]
-    );
+    const notRun = await game.isStoppedRunCode(page);
     if (notRun) {
       retryInstancePage(browser, runner, auth, page);
     }
@@ -123,10 +96,10 @@ const retryInstancePage = async (browser, runner, auth, page) => {
   const browser = await instanceBrowser();
 
   try {
-    for (let index = 0; index < config.characters.length; index++) {
-      const runner = config.characters[index];
+    await config.characters.forEach(async runner => {
       await instancePage(browser, runner, config.auth);
-    }
+    });
+
     logs.log("Finish process all characters!");
   } catch (e) {
     logs.error(e);
