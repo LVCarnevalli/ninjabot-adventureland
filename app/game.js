@@ -55,7 +55,7 @@ exports.runCode = async (page, runner) => {
     );
 
     setInterval(async () => {
-        await notRun = page.evaluate(() => !actual_code || !code_run);
+        const notRun = await page.evaluate(() => !actual_code || !code_run);
         if (notRun) {
             logs.info("Warning: Retry execute code", runner);
             await page.evaluate(
