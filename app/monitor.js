@@ -12,18 +12,16 @@ exports.characterInfo = async page => {
 };
 
 exports.isDead = async page => {
-    let isDead = false;
     setInterval(async () => {
         let rip = await page.evaluate(() => character && character.rip);
         if (rip) {
-            rip = false;
             page.evaluate(() => {
                 setTimeout(function() {
                     window.nb_logInfo(`Warning: ${character.name} you DEAD!`);
                 }, 1000 * 12);
             });
         }
-    }, 1000);
+    }, 1000 * 10);
 };
 
 exports.runCode = async page => {
