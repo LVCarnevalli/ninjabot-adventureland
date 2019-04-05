@@ -36,8 +36,8 @@ const instanceBrowser = async () => {
 };
 
 const instancePage = async (browser, runner) => {
-    logs.log("Create new page for character", runner);
-    const page = await browser.newPage();
+  logs.log("Create new page for character", runner);
+  const page = await browser.newPage();
   try {
     logs.log("Init request interceptor", runner);
     await requestInterception.on(page);
@@ -83,7 +83,7 @@ const instancePage = async (browser, runner) => {
     logs.log("Execute code", runner);
     await game.runCode(page, runner);
     logs.log("Character is active", runner);
-    verifyRetryInstancePage(browser, runner, page;
+    verifyRetryInstancePage(browser, runner, page);
   } catch (e) {
     logs.error("Occurred error in init character", runner);
     retryInstancePage(browser, runner, page);
@@ -124,7 +124,7 @@ const retryInstancePage = async (browser, runner, page) => {
 
   try {
     for (let index = 0; index < config.characters.length; index++) {
-        const runner = config.characters[index];
+      const runner = config.characters[index];
       await instancePage(browser, runner);
     }
     logs.log("Finish process all characters!");
