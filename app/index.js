@@ -73,6 +73,9 @@ const instancePage = async (index, browser, config) => {
 const init = async (page, runner) => {
     logs.log("Request login account", runner);
     await page.goto(`${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${runner.server.split(" ")[1]}/?no_html=true`);
+    await page.waitForXPath("//div[contains(text(), 'Connected')]", {
+        timeout: 1000 * 120
+    });
     logs.log("Configure monitors", runner);
     await monitor.characterInfo(page);
     await monitor.runCode(page);
