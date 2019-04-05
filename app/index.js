@@ -58,11 +58,11 @@ const instancePage = async (index, browser, config) => {
     logs.log("Init character", runner);
     await init(page, runner);
     setInterval(async () => {
-        const notRun = await page.evaluate(() => !actual_code || !code_run);
+        const notRun = await page.evaluate(() => !window["actual_code"] || !window["code_run"]);
         if (notRun) {
             logs.log("Warning: Retry init character", runner);
             try {
-                init(page, runner);
+                await init(page, runner);
             } catch (e) {
                 logs.error("Occurred error in retry init character", runner);
             }
@@ -91,7 +91,7 @@ const init = async (page, runner) => {
         for (let index = 0; index < config.characters.length; index++) {
             await instancePage(index, browser, config);
         }
-        logs.log("Load all characters with successful!");
+        logs.log("Finish process all characters!");
     } catch (e) {
         logs.error(e);
         await browser.close();
