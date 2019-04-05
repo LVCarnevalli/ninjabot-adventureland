@@ -46,11 +46,16 @@ exports.connectCharacter = async (page, character) => {
 
 exports.runCode = async (page, runner) => {
     await page.waitFor(() => !!character);
-    await page.evaluate(
-        code => {
-            start_runner(0, code);
-            actual_code = true;
-        },
-        await commons.readFile(`../scripts/${runner.code}`)
-    );
+    setInterval(() => {
+        if (!actual_code || !code_run) {
+            logs.log("Warning: Retry execute code", runner);
+            await page.evaluate(
+                code => {
+                    start_runner(0, code);
+                    actual_code = true;
+                },
+                await commons.readFile(`../scripts/${runner.code}`)
+            );
+        }
+    }, 1000 * 5);
 };
