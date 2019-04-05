@@ -35,7 +35,7 @@ const instanceBrowser = async () => {
   }
 };
 
-const instancePage = async (browser, runner) => {
+const instancePage = async (browser, runner, auth) => {
   logs.log("Create new page for character", runner);
   const page = await browser.newPage();
   try {
@@ -52,7 +52,7 @@ const instancePage = async (browser, runner) => {
     await page.waitFor(() => window["game_loaded"]);
 
     logs.log("Login in account", runner);
-    await game.login(page, runner, config);
+    await game.login(page, runner, auth);
 
     logs.log("Request login account", runner);
     await page.goto(
@@ -83,35 +83,35 @@ const instancePage = async (browser, runner) => {
     logs.log("Execute code", runner);
     await game.runCode(page, runner);
     logs.log("Character is active", runner);
-    verifyRetryInstancePage(browser, runner, page);
+    verifyRetryInstancePage(browser, runner, auth, page);
   } catch (e) {
     logs.error("Occurred error in init character", runner);
-    retryInstancePage(browser, runner, page);
+    retryInstancePage(browser, runner, auth, page);
   }
 };
 
 let intervalRetryInstancePage = [];
-const verifyRetryInstancePage = async (browser, runner, page) => {
+const verifyRetryInstancePage = async (browser, runner, auth, page) => {
   intervalRetryInstancePage[runner.name] = setInterval(async () => {
     const notRun = await page.evaluate(
       () => !window["actual_code"] || !window["code_run"]
     );
     if (notRun) {
-      retryInstancePage(browser, runner, page);
+      retryInstancePage(browser, runner, auth, page);
     }
   }, 1000 * 60);
 };
 
-const retryInstancePage = async (browser, runner, page) => {
+const retryInstancePage = async (browser, runner, auth, page) => {
   clearInterval(intervalRetryInstancePage[runner.name]);
   await page.close();
   setTimeout(async () => {
     logs.log("Warning: Retry init character", runner);
     try {
-      await instancePage(browser, runner);
+      await instancePage(browser, runner, auth);
     } catch (e) {
       logs.error("Occurred error in retry init character", runner);
-      retryInstancePage(browser, runner, page);
+      retryInstancePage(browser, runner, auth, page);
     }
   }, 1000 * 30);
 };
@@ -125,7 +125,7 @@ const retryInstancePage = async (browser, runner, page) => {
   try {
     for (let index = 0; index < config.characters.length; index++) {
       const runner = config.characters[index];
-      await instancePage(browser, runner);
+      await instancePage(browser, runner, config.auth);
     }
     logs.log("Finish process all characters!");
   } catch (e) {

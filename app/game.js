@@ -1,14 +1,14 @@
 const commons = require("./commons");
 const logs = require("./logs");
 
-exports.login = async (page, runner, config) => {
+exports.login = async (page, runner, auth) => {
   await page.evaluate(auth => {
     api_call_l(
       "signup_or_login",
       { email: auth.email, password: auth.password, only_login: true },
       {}
     );
-  }, config.auth);
+  }, auth);
   const responseLogin = await commons.puppeteer.waitForResponse(
     page,
     "signup_or_login"
