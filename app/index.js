@@ -96,10 +96,10 @@ const retryInstancePage = async (browser, runner, auth, page) => {
   const browser = await instanceBrowser();
 
   try {
-    await config.characters.forEach(async runner => {
+    for (let index = 0; index < config.characters.length; index++) {
+      const runner = config.characters[index];
       await instancePage(browser, runner, config.auth);
-    });
-
+    }
     logs.log("Finish process all characters!");
   } catch (e) {
     logs.error(e);
