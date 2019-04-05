@@ -7,6 +7,8 @@ const pageFunctions = require("./pageFunctions");
 const requestInterception = require("./requestInterception");
 const game = require("./game");
 
+const url = "https://adventure.land";
+
 const instanceBrowser = async () => {
     if (!!process.env.BROWSERLESS) {
         return await puppeteer.connect({
@@ -33,7 +35,6 @@ const instanceBrowser = async () => {
 };
 
 const instancePage = async (index, browser, config) => {
-    const url = "https://adventure.land";
     const runner = config.characters[index];
 
     logs.log("Create new page for character", runner);
@@ -53,11 +54,23 @@ const instancePage = async (index, browser, config) => {
 
     logs.log("Login in account", runner);
     await game.login(page, runner, config);
+
+    logs.log("Init character", runner);
+    init(page, runner);
+    setInterval(async () => {
+        const notRun = await page.evaluate(() => !actual_code || !code_run);
+        if (notRun) {
+            logs.log("Warning: Retry init character", runner);
+            init(page, runner);
+        }
+    }, 1000 * 5);
+};
+
+const init = async (page, runner) => {
     logs.log("Request login account", runner);
     await page.goto(`${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${runner.server.split(" ")[1]}/?no_html=true`);
     logs.log("Configure monitors", runner);
     await monitor.characterInfo(page);
-    await monitor.isDead(page);
     await monitor.runCode(page);
     logs.log("Execute code", runner);
     await game.runCode(page, runner);

@@ -53,18 +53,4 @@ exports.runCode = async (page, runner) => {
         },
         await commons.readFile(`../scripts/${runner.code}`)
     );
-
-    setInterval(async () => {
-        const notRun = await page.evaluate(() => !actual_code || !code_run);
-        if (notRun) {
-            logs.info("Warning: Retry execute code", runner);
-            await page.evaluate(
-                code => {
-                    start_runner(0, code);
-                    actual_code = true;
-                },
-                await commons.readFile(`../scripts/${runner.code}`)
-            );
-        }
-    }, 1000 * 5);
 };
