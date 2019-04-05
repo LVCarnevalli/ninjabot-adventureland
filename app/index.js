@@ -60,17 +60,23 @@ const instancePage = async (index, browser, config) => {
   await init(page, runner);
 };
 
-const init = async (page, runner) => {
+const init = async (page, runner, retry) => {
   try {
     logs.log("Request login account", runner);
-    await page.goto(
-      `${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${
-        runner.server.split(" ")[1]
-      }/?no_html=true`,
-      {
+    if (retry) {
+      await page.goto(
+        `${url}/character/${runner.name}/in/${runner.server.split(" ")[0]}/${
+          runner.server.split(" ")[1]
+        }/?no_html=true`,
+        {
+          timeout: 1000 * 120
+        }
+      );
+    } else {
+      await page.reload({
         timeout: 1000 * 120
-      }
-    );
+      });
+    }
 
     logs.log("Create error handler", runner);
     await page.waitFor(() => window["socket_welcomed"]);
@@ -115,7 +121,7 @@ const retryInit = async (page, runner) => {
   setTimeout(async () => {
     logs.log("Warning: Retry init character", runner);
     try {
-      await init(page, runner);
+      await init(page, runner, true);
     } catch (e) {
       logs.error("Occurred error in retry init character", runner);
       retryInit(page, runner);
