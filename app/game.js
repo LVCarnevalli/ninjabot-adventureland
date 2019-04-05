@@ -46,10 +46,10 @@ exports.connectCharacter = async (page, character) => {
 
 exports.runCode = async (page, runner) => {
     await page.waitFor(() => !!character);
-    setInterval(() => {
+    setInterval(async () => {
         if (!actual_code || !code_run) {
             logs.log("Warning: Retry execute code", runner);
-            await page.evaluate(
+            page.evaluate(
                 code => {
                     start_runner(0, code);
                     actual_code = true;
