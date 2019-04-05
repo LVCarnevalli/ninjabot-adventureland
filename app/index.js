@@ -63,7 +63,7 @@ const instancePage = async (index, browser, config) => {
             logs.log("Warning: Retry init character", runner);
             try {
                 init(page, runner);
-            } catch {
+            } catch (e) {
                 logs.error("Occurred error in retry init character", runner);
             }
         }
