@@ -1,7 +1,7 @@
 exports.characterInfo = async page => {
     setInterval(() => {
         page.evaluate(() => {
-            if (character) {
+            if (window["character"]) {
                 var inventory = `${character.items.filter(item => !!item).length}/${character.items.length}`;
                 var xp = `${((character.xp * 100) / character.max_xp).toFixed(2)}%`;
                 var target = Object.values(entities).filter(ent => ent.id == character.target)[0];
@@ -14,7 +14,7 @@ exports.characterInfo = async page => {
 exports.runCode = async page => {
     setInterval(() => {
         page.evaluate(() => {
-            if (character) {
+            if (window["character"]) {
                 if (actual_code && code_run) {
                     window.nb_logInfo(`${character.name} running code...`);
                 } else {
