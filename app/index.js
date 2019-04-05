@@ -80,12 +80,7 @@ const retryInstancePage = async (browser, runner, auth, page) => {
   await page.close();
   setTimeout(async () => {
     logs.log("Warning: Retry init character", runner);
-    try {
-      await instancePage(browser, runner, auth);
-    } catch (e) {
-      logs.error("Occurred error in retry init character", runner);
-      retryInstancePage(browser, runner, auth, page);
-    }
+    await instancePage(browser, runner, auth);
   }, 1000 * 30);
 };
 
